@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EMJABUART</title>
+  <style>
+:root {
+  --bg: #f6f1e8;
+  --panel: #fffaf1;
+  --primary: #7a4a2f;
+  --primary-dark: #5b3421;
+  --accent: #b67b4e;
+  --text: #2e241d;
+  --muted: #7e6c60;
+  --border: #ddc9b5;
+  --shadow: 0 10px 20px rgba(46, 36, 29, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 2px solid var(--border);
+  background: linear-gradient(90deg, #f3e8d9, #f7f1e6);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 16px 24px;
+}
+
+.search-section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #c9ab90;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fffdf9;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid rgba(182, 123, 78, 0.3);
+  border-color: var(--accent);
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+.secondary {
+  background: #9a816f;
+}
+
+.secondary:hover {
+  background: #7f6655;
+}
+
+.admin-btn {
+  background: var(--accent);
+}
+
+.admin-btn:hover {
+  background: #98603a;
+}
+
+.admin-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  cursor: zoom-in;
+}
+
+.card-content {
+  padding: 12px;
+}
+
+.price {
+  color: var(--primary);
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.desc {
+  color: var(--muted);
+  min-height: 38px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.order-link {
+  text-decoration: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.empty-state {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.error {
+  color: #a12727;
+  margin: 8px 0;
+}
+
+.save-status {
+  margin: 6px 0 0;
+  color: #2f6a2f;
+  font-weight: 600;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 14, 8, 0.62);
+  display: grid;
+  place-items: center;
+  z-index: 999;
+  padding: 16px;
+}
+
+.modal-content,
+.image-modal-content {
+  background: var(--panel);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  width: min(460px, 100%);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.image-modal-content {
+  width: min(900px, 100%);
+  position: relative;
+  text-align: center;
+}
+
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 8px;
+}
+
+.close-image-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 6px 10px;
+}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>EMJABUART</h1>
+    <button
+      id="adminToggleBtn"
+      class="admin-btn"
+      type="button"
+      onclick="document.getElementById('loginModal').classList.remove('hidden');document.getElementById('loginModal').setAttribute('aria-hidden','false');document.getElementById('loginError').classList.add('hidden');"
+    >
+      Yonetici Girisi
+    </button>
+  </header>
+
+  <main class="container">
+    <section class="search-section">
+      <label for="searchInput">Urun Ara</label>
+      <input id="searchInput" type="text" placeholder="Urun adi, aciklama veya fiyat ile ara...">
+    </section>
+
+    <section id="adminPanel" class="admin-panel hidden">
+      <h2>Yonetici Paneli</h2>
+      <form id="productForm" class="product-form">
+        <input type="hidden" id="productId">
+        <label for="name">Urun Adi</label>
+        <input id="name" type="text" required>
+
+        <label for="price">Fiyat</label>
+        <input id="price" type="text" placeholder="Orn: 750 TL" required>
+
+        <label for="imageFile">Urun Fotografi</label>
+        <input id="imageFile" type="file" accept="image/*">
+        <small id="imageHelpText">Yeni urun icin fotograf secmek zorunludur. Duzenlemede fotograf degistirmek istemezseniz bos birakabilirsiniz.</small>
+
+        <label for="orderLink">Satis Linki</label>
+        <input id="orderLink" type="url" placeholder="https://..." required>
+
+        <label for="description">Aciklama</label>
+        <textarea id="description" rows="3" placeholder="Urunle ilgili kisa bilgi"></textarea>
+
+        <div class="form-actions">
+          <button type="submit" id="saveBtn">Urunu Kaydet</button>
+          <button type="button" id="cancelEditBtn" class="secondary hidden">Duzenlemeyi Iptal Et</button>
+          <button type="button" id="logoutBtn" class="secondary">Yonetici Cikisi</button>
+        </div>
+        <p id="saveStatus" class="save-status hidden" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Urunler</h2>
+      <div id="productList" class="product-list"></div>
+      <p id="emptyState" class="empty-state hidden">Aramaniza uygun urun bulunamadi.</p>
+    </section>
+  </main>
+
+  <div id="loginModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Yonetici Girisi</h3>
+      <form id="loginForm">
+        <label for="adminUsername">Kullanici Adi</label>
+        <input id="adminUsername" type="text" required>
+
+        <label for="adminPassword">Sifre</label>
+        <input id="adminPassword" type="password" required>
+
+        <p id="loginError" class="error hidden">Kullanici adi veya sifre hatali.</p>
+        <div class="form-actions">
+          <button type="submit">Giris Yap</button>
+          <button type="button" id="closeLoginBtn" class="secondary">Vazgec</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="imageModal" class="modal hidden" aria-hidden="true">
+    <div class="image-modal-content">
+      <button id="closeImageBtn" class="close-image-btn" aria-label="Gorseli kapat">X</button>
+      <img id="zoomedImage" src="" alt="Buyutulmus urun gorseli">
+    </div>
+  </div>
+
+  <script>
+const API_PRODUCTS_URL = "/api/products";
+const API_PRODUCTS_SAVE_URL = "/api/products/save";
+const API_ADMIN_LOGIN_URL = "/api/admin/login";
+const API_ADMIN_VERIFY_URL = "/api/admin/verify";
+const STORAGE_KEY = "emjabuart_products_v1";
+const ADMIN_TOKEN_KEY = "emjabuart_admin_token";
+const MAX_IMAGE_DIMENSION = 1200;
+const IMAGE_QUALITY = 0.82;
+
+const defaultProducts = [
+  {
+    id: crypto.randomUUID(),
+    name: "El Dokuma Kilim",
+    price: "2.450 TL",
+    imageUrl: "https://images.unsplash.com/photo-1616628182509-6a9d865f5f84?auto=format&fit=crop&w=900&q=80",
+    orderLink: "https://example.com/kilim",
+    description: "Dogal ipliklerden uretilmis geleneksel desenli kilim."
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Seramik Vazo",
+    price: "980 TL",
+    imageUrl: "https://images.unsplash.com/photo-1577083552431-6e5fd01988f6?auto=format&fit=crop&w=900&q=80",
+    orderLink: "https://example.com/seramik-vazo",
+    description: "El yapimi, rustik dokulu dekoratif seramik vazo."
+  }
+];
+
+let products = [...defaultProducts];
+let isAdminLoggedIn = false;
+let editingId = null;
+let adminToken = sessionStorage.getItem(ADMIN_TOKEN_KEY) || "";
+
+const ui = {
+  adminToggleBtn: document.getElementById("adminToggleBtn"),
+  adminPanel: document.getElementById("adminPanel"),
+  loginModal: document.getElementById("loginModal"),
+  closeLoginBtn: document.getElementById("closeLoginBtn"),
+  loginForm: document.getElementById("loginForm"),
+  loginError: document.getElementById("loginError"),
+  logoutBtn: document.getElementById("logoutBtn"),
+  productForm: document.getElementById("productForm"),
+  productId: document.getElementById("productId"),
+  name: document.getElementById("name"),
+  price: document.getElementById("price"),
+  imageFile: document.getElementById("imageFile"),
+  orderLink: document.getElementById("orderLink"),
+  description: document.getElementById("description"),
+  cancelEditBtn: document.getElementById("cancelEditBtn"),
+  saveStatus: document.getElementById("saveStatus"),
+  searchInput: document.getElementById("searchInput"),
+  productList: document.getElementById("productList"),
+  emptyState: document.getElementById("emptyState"),
+  imageModal: document.getElementById("imageModal"),
+  zoomedImage: document.getElementById("zoomedImage"),
+  closeImageBtn: document.getElementById("closeImageBtn")
+};
+
+async function loadProducts() {
+  const loadFromLocal = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        return [...defaultProducts];
+      }
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [...defaultProducts];
+    } catch {
+      return [...defaultProducts];
+    }
+  };
+
+  try {
+    const response = await fetch(API_PRODUCTS_URL, { cache: "no-store" });
+    if (!response.ok) {
+      return loadFromLocal();
+    }
+    const data = await response.json();
+    if (Array.isArray(data)) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {
+        // localStorage yazimi basarisizsa yok say.
+      }
+      return data;
+    }
+    return loadFromLocal();
+  } catch {
+    return loadFromLocal();
+  }
+}
+
+async function saveProducts() {
+  const saveToLocal = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  try {
+    const authHeaders = adminToken
+      ? { "Content-Type": "application/json", Authorization: `Bearer ${adminToken}` }
+      : { "Content-Type": "application/json" };
+    let response = await fetch(API_PRODUCTS_SAVE_URL, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify(products)
+    });
+    if (response.status === 401) {
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      adminToken = "";
+      setAdminMode(false);
+      return false;
+    }
+    if (response.ok) {
+      return true;
+    }
+
+    // Bazi tünel/proxy ortamlari POST'u reddedebilir; PUT ile tekrar dene.
+    response = await fetch(API_PRODUCTS_URL, {
+      method: "PUT",
+      headers: authHeaders,
+      body: JSON.stringify(products)
+    });
+    if (response.status === 401) {
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      adminToken = "";
+      setAdminMode(false);
+      return false;
+    }
+    if (response.ok) {
+      saveToLocal();
+      return true;
+    }
+
+    return saveToLocal();
+  } catch {
+    return saveToLocal();
+  }
+}
+
+function showSaveStatus(message) {
+  ui.saveStatus.textContent = message;
+  ui.saveStatus.classList.remove("hidden");
+  clearTimeout(showSaveStatus.timeoutId);
+  showSaveStatus.timeoutId = setTimeout(() => {
+    ui.saveStatus.classList.add("hidden");
+  }, 1800);
+}
+
+function setAdminMode(value) {
+  isAdminLoggedIn = value;
+  ui.adminPanel.classList.toggle("hidden", !value);
+  ui.adminToggleBtn.textContent = value ? "Yonetici Aktif" : "Yonetici Girisi";
+  renderProducts();
+}
+
+function openLoginModal() {
+  ui.loginModal.classList.remove("hidden");
+  ui.loginModal.setAttribute("aria-hidden", "false");
+  ui.loginError.classList.add("hidden");
+  ui.loginForm.reset();
+}
+
+function closeLoginModal() {
+  ui.loginModal.classList.add("hidden");
+  ui.loginModal.setAttribute("aria-hidden", "true");
+}
+
+function resetForm() {
+  editingId = null;
+  ui.productForm.reset();
+  ui.cancelEditBtn.classList.add("hidden");
+}
+
+function fillForm(product) {
+  editingId = product.id;
+  ui.name.value = product.name;
+  ui.price.value = product.price;
+  ui.imageFile.value = "";
+  ui.orderLink.value = product.orderLink;
+  ui.description.value = product.description;
+  ui.cancelEditBtn.classList.remove("hidden");
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Gorsel dosyasi okunamadi."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function optimizeImageDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const ratio = Math.min(
+        1,
+        MAX_IMAGE_DIMENSION / image.width,
+        MAX_IMAGE_DIMENSION / image.height
+      );
+      const targetWidth = Math.max(1, Math.round(image.width * ratio));
+      const targetHeight = Math.max(1, Math.round(image.height * ratio));
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const context = canvas.getContext("2d");
+
+      if (!context) {
+        reject(new Error("Canvas context olusturulamadi."));
+        return;
+      }
+
+      context.drawImage(image, 0, 0, targetWidth, targetHeight);
+      resolve(canvas.toDataURL("image/jpeg", IMAGE_QUALITY));
+    };
+    image.onerror = () => reject(new Error("Gorsel islenemedi."));
+    image.src = dataUrl;
+  });
+}
+
+async function readAndOptimizeImage(file) {
+  const rawDataUrl = await readFileAsDataUrl(file);
+  if (!String(rawDataUrl).startsWith("data:image/")) {
+    return rawDataUrl;
+  }
+  return optimizeImageDataUrl(rawDataUrl);
+}
+
+function createCard(product) {
+  const card = document.createElement("article");
+  card.className = "card";
+
+  const image = document.createElement("img");
+  image.src = product.imageUrl;
+  image.alt = product.name;
+  image.addEventListener("click", () => openImage(product.imageUrl, product.name));
+
+  const content = document.createElement("div");
+  content.className = "card-content";
+
+  const name = document.createElement("h3");
+  name.textContent = product.name;
+
+  const price = document.createElement("p");
+  price.className = "price";
+  price.textContent = product.price;
+
+  const desc = document.createElement("p");
+  desc.className = "desc";
+  desc.textContent = product.description || "";
+
+  const actions = document.createElement("div");
+  actions.className = "card-actions";
+
+  const orderLink = document.createElement("a");
+  orderLink.className = "order-link";
+  orderLink.href = product.orderLink;
+  orderLink.target = "_blank";
+  orderLink.rel = "noopener noreferrer";
+
+  const orderButton = document.createElement("button");
+  orderButton.type = "button";
+  orderButton.textContent = "Siparis icin tiklayiniz";
+  orderLink.appendChild(orderButton);
+  actions.appendChild(orderLink);
+
+  if (isAdminLoggedIn) {
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.className = "secondary";
+    editButton.textContent = "Duzenle";
+    editButton.addEventListener("click", () => fillForm(product));
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "secondary";
+    deleteButton.textContent = "Sil";
+    deleteButton.addEventListener("click", async () => {
+      products = products.filter((item) => item.id !== product.id);
+      const saved = await saveProducts();
+      if (!saved) {
+        alert("Degisiklik kaydedilemedi. Sunucuya baglanilamadi.");
+        return;
+      }
+      showSaveStatus("Urun silindi ve kaydedildi.");
+      renderProducts(ui.searchInput.value);
+      if (editingId === product.id) {
+        resetForm();
+      }
+    });
+
+    actions.append(editButton, deleteButton);
+  }
+
+  content.append(name, price, desc, actions);
+  card.append(image, content);
+  return card;
+}
+
+function renderProducts(searchText = "") {
+  const term = searchText.trim().toLowerCase();
+  const filtered = products.filter((product) => {
+    const haystack = `${product.name} ${product.price} ${product.description}`.toLowerCase();
+    return haystack.includes(term);
+  });
+
+  ui.productList.innerHTML = "";
+  filtered.forEach((product) => {
+    ui.productList.appendChild(createCard(product));
+  });
+
+  ui.emptyState.classList.toggle("hidden", filtered.length > 0);
+}
+
+function openImage(src, alt) {
+  ui.zoomedImage.src = src;
+  ui.zoomedImage.alt = alt;
+  ui.imageModal.classList.remove("hidden");
+  ui.imageModal.setAttribute("aria-hidden", "false");
+}
+
+function closeImage() {
+  ui.imageModal.classList.add("hidden");
+  ui.imageModal.setAttribute("aria-hidden", "true");
+  ui.zoomedImage.src = "";
+}
+
+ui.adminToggleBtn.addEventListener("click", () => {
+  if (isAdminLoggedIn) {
+    return;
+  }
+  openLoginModal();
+});
+
+ui.closeLoginBtn.addEventListener("click", closeLoginModal);
+
+ui.loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  try {
+    const response = await fetch(API_ADMIN_LOGIN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    if (!response.ok) {
+      ui.loginError.classList.remove("hidden");
+      return;
+    }
+
+    const data = await response.json();
+    if (!data.token) {
+      ui.loginError.classList.remove("hidden");
+      return;
+    }
+
+    adminToken = data.token;
+    sessionStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
+    setAdminMode(true);
+    closeLoginModal();
+    showSaveStatus("Yonetici girisi basarili.");
+  } catch {
+    ui.loginError.classList.remove("hidden");
+  }
+});
+
+ui.logoutBtn.addEventListener("click", () => {
+  adminToken = "";
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  setAdminMode(false);
+  resetForm();
+});
+
+ui.productForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const selectedFile = ui.imageFile.files[0];
+  let imageUrl = "";
+
+  if (selectedFile) {
+    try {
+      imageUrl = await readAndOptimizeImage(selectedFile);
+    } catch {
+      alert("Fotograf okunurken bir hata olustu. Lutfen tekrar deneyin.");
+      return;
+    }
+  } else if (editingId) {
+    const currentProduct = products.find((item) => item.id === editingId);
+    imageUrl = currentProduct ? currentProduct.imageUrl : "";
+  } else {
+    alert("Lutfen urun icin bir fotograf secin.");
+    return;
+  }
+
+  const product = {
+    id: editingId || crypto.randomUUID(),
+    name: ui.name.value.trim(),
+    price: ui.price.value.trim(),
+    imageUrl,
+    orderLink: ui.orderLink.value.trim(),
+    description: ui.description.value.trim()
+  };
+
+  if (editingId) {
+    products = products.map((item) => (item.id === editingId ? product : item));
+    showSaveStatus("Urun guncellendi ve kaydedildi.");
+  } else {
+    products.unshift(product);
+    showSaveStatus("Yeni urun eklendi ve kaydedildi.");
+  }
+
+  const saved = await saveProducts();
+  if (!saved) {
+    alert("Degisiklik kaydedilemedi. Sunucuya baglanilamadi.");
+    return;
+  }
+  resetForm();
+  renderProducts(ui.searchInput.value);
+});
+
+ui.cancelEditBtn.addEventListener("click", resetForm);
+
+ui.searchInput.addEventListener("input", (event) => {
+  renderProducts(event.target.value);
+});
+
+ui.closeImageBtn.addEventListener("click", closeImage);
+ui.imageModal.addEventListener("click", (event) => {
+  if (event.target === ui.imageModal) {
+    closeImage();
+  }
+});
+
+async function initializeApp() {
+  if (adminToken) {
+    try {
+      const verifyResponse = await fetch(API_ADMIN_VERIFY_URL, {
+        headers: { Authorization: `Bearer ${adminToken}` },
+        cache: "no-store"
+      });
+      const verifyData = await verifyResponse.json();
+      if (verifyData.ok) {
+        setAdminMode(true);
+      } else {
+        adminToken = "";
+        sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+      }
+    } catch {
+      adminToken = "";
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    }
+  }
+  products = await loadProducts();
+  renderProducts();
+}
+
+initializeApp();
+  </script>
+</body>
+</html>
